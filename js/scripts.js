@@ -1,7 +1,7 @@
 /***** global vars ******/
-//var CPS = Complex Plane Square, which means we tke in concideration a square 2*CPS by 2*CPS region of the complex plane. This square is centered at the complex plane's origin
-var CPS = 2; 
-var MAX_ITERATIONS = 120; 
+//var CPS = Complex Plane Square, which means we take in concideration a square 2*CPS by 2*CPS region of the complex plane. This square is centered at the complex plane's origin
+var CPS = 4;
+var MAX_ITERATIONS = 120;
 var DELTA = 0.004;
 
 //complex numbers constructor Complex
@@ -11,7 +11,7 @@ function Complex(x, y) {
 }
 
 //method toString represents a complex number as "x + yi"
-Complex.prototype.toString = function() {
+Complex.prototype.toString = function () {
     return this.y >= 0 ? this.x + " + " + this.y + "i" : this.x + " - " + this.y + "i";
 };
 
@@ -21,12 +21,12 @@ Complex.prototype.modulus = function () {
 };
 
 //method add defines an addition operation for two given complex numbers
-Complex.prototype.add = function(z) {
+Complex.prototype.add = function (z) {
     return new Complex(this.x + z.x, this.y + z.y);
 };
 
 //method square returns a complex num that is equal to square of given complex num
-Complex.prototype.square = function() {
+Complex.prototype.square = function () {
     var x = this.x * this.x - this.y * this.y;
     var y = 2 * this.x * this.y;
     
@@ -38,71 +38,85 @@ Complex.prototype.square = function() {
 var globals = {};
 globals.canvas = document.getElementsByClassName("canvas")[0];
 globals.canvas.ctx = globals.canvas.getContext('2d');
-globals.canvas.ctx.fillStyle = "black";  
+globals.canvas.ctx.fillStyle = "#000000";
 
-initializeCoordinateSystem();
-drawMandelbrotSet();
-drawCoordinateAxes();
+
+
+//initializeCoordinateSystem();
+//drawMandelbrotSet();
+//drawCoordinateAxes();
 
 function initializeCoordinateSystem() {
     var ctx = globals.canvas.ctx;
     //center the canvas coordinate system
     ctx.translate(globals.canvas.width / 2, globals.canvas.height / 2);
     //flip the y-axis and scale it with delta
-    ctx.scale(1/DELTA, -1/DELTA);
+    ctx.scale(1 / DELTA, -1 / DELTA);
 }
 
 function check(z, c) {
-    for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
-                var count = iterationCount;
-                z = c.add( z.square() );
-                if (z.modulus() > 2) {
-                    return iterationCount / MAX_ITERATIONS;
-                    
-                };
-            };
-    return 0; 
-};
+    for (iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
+        z = c.add(z.square());
+        if (z.modulus() > 2) {
+            return iterationCount / MAX_ITERATIONS;
+        }
+    }
+    return 0;
+}
 
 function drawMandelbrotSet() {
     var ctx = globals.canvas.ctx;
     //Real part axis
-    for (var Re = -CPS; Re <= CPS; Re = Re + DELTA) {
+    for (Re = -CPS; Re <= CPS; Re = Re + DELTA) {
         //Im part axis
-        for (var Im = -CPS; Im <= CPS; Im = Im + DELTA) {
+        for (Im = -CPS; Im <= CPS; Im = Im + DELTA) {
             var z = new Complex(0, 0);
             var c = new Complex(Re, Im);
             
             var belongsToSet = check(z, c);
             
-            if(belongsToSet) {
-                ctx.fillStyle = 'rgba(0, 0, 0, ' + belongsToSet + ')';
+            if (belongsToSet) {
+                ctx.fillStyle = 'rgba(0, 0, 0, ' + belongsToSet + ')';                
                 ctx.fillRect(Re, Im, DELTA, DELTA);
             } else {
                 ctx.fillStyle = 'black';
                 ctx.fillRect(Re, Im, DELTA, DELTA);
-            };  
-            
-            
-        };
-    };
-};
+            }
+        }
+    }
+}
 
 function drawCoordinateAxes() {
-      var ctx = globals.canvas.ctx;
+    var ctx = globals.canvas.ctx;
+    
+    ctx.lineWidth = DELTA;
+    ctx.strokeStyle = "#9A0331";
       
-      ctx.lineWidth = DELTA;
-      ctx.strokeStyle = "#d22c11";
+    //x-axis:
+    ctx.beginPath();
+    ctx.moveTo(CPS, 0);
+    ctx.lineTo(-CPS, 0);
+    ctx.stroke();
       
-      //x-axis:
-      ctx.beginPath();
-      ctx.moveTo(CPS, 0);
-      ctx.lineTo(-CPS, 0);
-      ctx.stroke();
-      
-      //y-axis:
-      ctx.beginPath();
-      ctx.moveTo(0, CPS);
-      ctx.lineTo(0, -CPS);
-      ctx.stroke();      
-};
+    //y-axis:
+    ctx.beginPath();
+    ctx.moveTo(0, CPS);
+    ctx.lineTo(0, -CPS);
+    ctx.stroke();
+}
+
+//function resizeCanvas() {
+//    globals.canvas.width = window.innerWidth;
+//    globals.canvas.height = window.innerHeight;
+//    
+//    initializeCoordinateSystem();
+//    drawMandelbrotSet();
+//    drawCoordinateAxes();  
+//}
+//
+//window.addEventListener('resize', resizeCanvas, false);
+//resizeCanvas();
+
+initializeCoordinateSystem();
+drawMandelbrotSet();
+drawCoordinateAxes();  
