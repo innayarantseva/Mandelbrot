@@ -1,8 +1,8 @@
 /***** global vars ******/
 //var CPS = Complex Plane Square, which means we tke in concideration a square 2*CPS by 2*CPS region of the complex plane. This square is centered at the complex plane's origin
 var CPS = 2; 
-var MAX_ITERATIONS = 300; 
-var DELTA = 0.008;
+var MAX_ITERATIONS = 120; 
+var DELTA = 0.004;
 
 //complex numbers constructor Complex
 function Complex(x, y) {
@@ -16,7 +16,7 @@ Complex.prototype.toString = function() {
 };
 
 //method modulus returns a real number that equal to the absolute value of given complex num
-Complex.prototype.modulus = function() {
+Complex.prototype.modulus = function () {
     return Math.sqrt(this.x * this.x + this.y * this.y);
 };
 
@@ -52,48 +52,57 @@ function initializeCoordinateSystem() {
     ctx.scale(1/DELTA, -1/DELTA);
 }
 
+function check(z, c) {
+    for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
+                var count = iterationCount;
+                z = c.add( z.square() );
+                if (z.modulus() > 2) {
+                    return iterationCount / MAX_ITERATIONS;
+                    
+                };
+            };
+    return 0; 
+};
+
 function drawMandelbrotSet() {
     var ctx = globals.canvas.ctx;
     //Real part axis
     for (var Re = -CPS; Re <= CPS; Re = Re + DELTA) {
-        next_c_value:
         //Im part axis
         for (var Im = -CPS; Im <= CPS; Im = Im + DELTA) {
             var z = new Complex(0, 0);
             var c = new Complex(Re, Im);
             
-            for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
-                z = c.add( z.square() );
-                if (z.modulus() > 2) {
-                    continue next_c_value;
-                };
-            };
+            var belongsToSet = check(z, c);
             
-            ctx.fillRect(Re, Im, DELTA, DELTA);
+            if(belongsToSet) {
+                ctx.fillStyle = 'rgba(0, 0, 0, ' + belongsToSet + ')';
+                ctx.fillRect(Re, Im, DELTA, DELTA);
+            } else {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(Re, Im, DELTA, DELTA);
+            };  
+            
+            
         };
     };
 };
 
 function drawCoordinateAxes() {
-    /* 
-      Draws coordinate axes that are exactly as long as the (square) complex plane region under consideration.
-    */
       var ctx = globals.canvas.ctx;
       
       ctx.lineWidth = DELTA;
-      ctx.strokeStyle = "red";
+      ctx.strokeStyle = "#d22c11";
       
-      // Draw the x-axis:
+      //x-axis:
       ctx.beginPath();
       ctx.moveTo(CPS, 0);
       ctx.lineTo(-CPS, 0);
       ctx.stroke();
       
-      // Draw the y-axis:
+      //y-axis:
       ctx.beginPath();
       ctx.moveTo(0, CPS);
       ctx.lineTo(0, -CPS);
       ctx.stroke();      
-    } // drawCoordinateAxes
-
-
+};
